@@ -15,9 +15,9 @@
         "title": "orange-desktop-app",
         "width": 400,
         "height": 600,
-        "visible": false,
         "decorations": false,
-        "visibleOnAllWorkspaces": true
+        "visibleOnAllWorkspaces": true,
+        "visible": false
       }
     ],
     "security": {

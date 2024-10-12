@@ -1,6 +1,6 @@
 import { Menu } from "@tauri-apps/api/menu";
 import { TrayIcon, TrayIconOptions } from "@tauri-apps/api/tray";
-import { getCurrentWindow, LogicalPosition, PhysicalPosition } from "@tauri-apps/api/window";
+import { getCurrentWindow, PhysicalPosition } from "@tauri-apps/api/window";
 import { invoke } from "@tauri-apps/api/core";
 
 export const createTray = async () => {
