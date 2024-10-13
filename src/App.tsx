@@ -1,9 +1,12 @@
-import { useEffect} from "react";
-// import { invoke } from "@tauri-apps/api/core";
+import { useEffect } from "react";
 import "./App.css";
-// import { createTray } from "./tray";
 import { getCurrentWindow } from "@tauri-apps/api/window";
-import BottomNav from "./BottomNav";
+import { HashRouter as Router, Routes, Route } from "react-router-dom";
+import Home from "./pages/Home";
+import Miner from "./pages/Miner";
+import Chart from "./pages/Chart";
+import Settings from "./pages/Settings";
+import Layout from "./Layout";
 
 function App() {
   useEffect(() => {
@@ -14,27 +17,17 @@ function App() {
     });
   }, []);
 
-  // async function greet() {
-  //   // Learn more about Tauri commands at https://tauri.app/v1/guides/features/command
-  //   setGreetMsg(await invoke("greet", { name }));
-  // }
-
   return (
-    <div className="h-screen w-full flex flex-col">
-      <div className="h-full grow">
-        {/* <img src="orange.svg" className="size-8"/>
-      <div className="text-orange-800 w-full text-center text-2xl font-bold">Orange</div> */}
-
-        {/* <Chart assetId={1284444444} width={400} height={500}/> */}
-        <iframe
-          title="Vestige Widget"
-          src="https://vestige.fi/widget/1284444444/chart"
-          // src="https://vestige.fi/asset/1284444444"
-          className="w-full h-full"
-        />
-      </div>
-      <BottomNav />
-    </div>
+    <Router>
+      <Routes>
+        <Route element={<Layout />}>
+          <Route path="/" element={<Home />} />
+          <Route path="/chart" element={<Chart />} />
+          <Route path="/miner" element={<Miner />} />
+          <Route path="/settings" element={<Settings />} />
+        </Route>
+      </Routes>
+    </Router>
   );
 }
 

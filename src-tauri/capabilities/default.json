@@ -8,9 +8,6 @@
   "permissions": [
     "core:default",
     "shell:allow-open",
-    "log:default",
-    "core:window:allow-set-position",
-    "core:window:allow-show",
-    "core:window:allow-set-focus"
+    "log:default"
   ]
 }

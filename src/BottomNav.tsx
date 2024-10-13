@@ -1,18 +1,20 @@
+import { Link } from "react-router-dom";
+
 interface NavButtonProps {
   selectedIndex: number;
   index: number;
   text: string;
-  onClick: () => void;
+  target: string;
 }
 
-const NavButton: React.FC<NavButtonProps> = ({ selectedIndex, index, text, onClick }) => {
+const NavButton: React.FC<NavButtonProps> = ({ selectedIndex, index, text, target }) => {
   return (
-    <button
-      className={`hover:text-white ${selectedIndex == index ? 'text-white' :'text-gray-500'}` }
-      onClick={onClick}
+    <Link
+      className={`flex items-center justify-center hover:text-white ${selectedIndex == index ? 'text-white' :'text-gray-500'}` }
+      to={target}
     >
       {text}
-    </button>
+    </Link>
   );
 };
 
@@ -23,26 +25,26 @@ const BottomNav = () => {
         selectedIndex={0}
         index={0}
         text="Home"
-        onClick={() => {/* handle click */}}
+        target="/" 
       />
 
       <NavButton
         selectedIndex={0}
         index={1}
         text="Chart"
-        onClick={() => {/* handle click */}}
+        target="/chart"
       />
       <NavButton
         selectedIndex={0}
         index={2}
         text="Miner"
-        onClick={() => {/* handle click */}}
+        target="/miner"
       />
       <NavButton
         selectedIndex={0}
         index={3}
-        text="Public"
-        onClick={() => {/* handle click */}}
+        text="Settings"
+        target="/settings"
       />
     </div>
   );
