@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { Link, useLocation, useNavigation, useRoutes } from "react-router-dom";
 
 interface NavButtonProps {
   selectedIndex: number;
@@ -7,10 +7,17 @@ interface NavButtonProps {
   target: string;
 }
 
-const NavButton: React.FC<NavButtonProps> = ({ selectedIndex, index, text, target }) => {
+const NavButton: React.FC<NavButtonProps> = ({
+  selectedIndex,
+  index,
+  text,
+  target,
+}) => {
   return (
     <Link
-      className={`flex items-center justify-center hover:text-white ${selectedIndex == index ? 'text-white' :'text-gray-500'}` }
+      className={`flex items-center justify-center hover:text-white ${
+        selectedIndex == index ? "text-white" : "text-gray-500"
+      }`}
       to={target}
     >
       {text}
@@ -18,34 +25,25 @@ const NavButton: React.FC<NavButtonProps> = ({ selectedIndex, index, text, targe
   );
 };
 
+const pathToIndexMap: { [key: string]: number } = {
+  "/": 0,
+  "/miner": 1,
+  "/node": 2,
+  "/settings": 2,
+};
+
 const BottomNav = () => {
+  const location = useLocation();
+
+  const selectedIndex = pathToIndexMap[location.pathname] || 0;
+
   return (
     <div className="grid grid-cols-4 h-12 text-xs bg-black text-white">
-      <NavButton
-        selectedIndex={0}
-        index={0}
-        text="Home"
-        target="/" 
-      />
+      <NavButton selectedIndex={selectedIndex} index={0} text="Home" target="/" />
+      <NavButton selectedIndex={selectedIndex} index={1} text="Miner" target="/miner" />
+      <NavButton selectedIndex={selectedIndex} index={2} text="Node" target="/node" />
 
-      <NavButton
-        selectedIndex={0}
-        index={1}
-        text="Chart"
-        target="/chart"
-      />
-      <NavButton
-        selectedIndex={0}
-        index={2}
-        text="Miner"
-        target="/miner"
-      />
-      <NavButton
-        selectedIndex={0}
-        index={3}
-        text="Settings"
-        target="/settings"
-      />
+      <NavButton selectedIndex={selectedIndex} index={3} text="Chart" target="/chart" />
     </div>
   );
 };

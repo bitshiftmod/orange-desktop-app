@@ -13,13 +13,15 @@
     "@tauri-apps/api": ">=2.0.0",
     "@tauri-apps/plugin-log": "^2.0.0",
     "@tauri-apps/plugin-shell": ">=2.0.0",
+    "@tauri-apps/plugin-store": "~2",
     "add": "^2.0.6",
     "algosdk": "^3.0.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-query": "^3.39.3",
     "react-router-dom": "^6.27.0",
-    "yarn": "^1.22.22"
+    "yarn": "^1.22.22",
+    "zustand": "^5.0.0-rc.2"
   },
   "devDependencies": {
     "@tauri-apps/cli": ">=2.0.0",

@@ -1,18 +1,13 @@
-import { ReactNode } from "react";
 import useAssetData from "../hooks/useAssetData";
 import { formatWithCommas } from "../utils";
 import usePriceData from "../hooks/usePriceData";
-
-const Row = ({ label, value }: { label: string; value: ReactNode }) => (
-  <div className="flex justify-between">
-    <div className="font-bold">{label}</div>
-    <div>{value}</div>
-  </div>
-);
+import Row from "../components/Row";
+import { useGlobalState } from "../store/store";
 
 const Home = () => {
-  const { data: assetData } = useAssetData();
+  const algosdk = useGlobalState((state) => state.algosdk);
 
+  const { data: assetData } = useAssetData();
   const { data: priceData } = usePriceData();
 
   return (
@@ -37,8 +32,12 @@ const Home = () => {
           )}
         </div>
 
-        {assetData ? (
-          <div className="text-md mt-4 flex flex-col gap-4">
+        {!algosdk ? (
+          <div className="mt-4 flex flex-col gap-4">
+            <div className="rounded p-4">Please configure your local Algorand node to continue.</div>
+          </div>
+        ) : assetData ? (
+          <div className="mt-4 flex flex-col gap-4">
             <div className="rounded">
               <div className="bg-orange-950 h-2 w-full justify-start flex rounded-t overflow-clip">
                 <div
@@ -74,16 +73,11 @@ const Home = () => {
                 value={formatWithCommas(Number(assetData.totalTransactions))}
               />
             </div>
-            {/* <Row label="Recent Algo Effort:" value={Number(assetData.)} /> */}
-            {/* {Object.entries(assetData).map(([key, value]) => (
-              <div key={key} className="flex justify-between">
-                <div>{key}</div>
-                <div>{value.toString()}</div>
-              </div>
-            ))} */}
           </div>
         ) : (
-          <div>Loading...</div>
+          <div className="mt-4 flex flex-col gap-4">
+            <div className="rounded p-4">Loading...</div>
+          </div>
         )}
       </div>
     </div>

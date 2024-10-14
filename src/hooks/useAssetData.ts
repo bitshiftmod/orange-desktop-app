@@ -1,49 +1,7 @@
-import algosdk from "algosdk";
 import { useQuery } from "react-query";
-import { keyToAddress, keyToValue } from "../utils";
 import { MAINNET_APP_INDEX } from "../constants";
-
-// FIXME - put this into a global state management system
-const nodeUrl = "http://localhost";
-const nodePort = 8080;
-const client = new algosdk.Algodv2(
-  "c7288ede8085549a8882ec246054b6eafca327898b3a01adf7180c9efb85ccab",
-  nodeUrl,
-  nodePort
-);
-
-type AppData = {
-  manager: string;
-  miningApplication: number;
-  miningToken: number;
-  poolAddress: string;
-  poolApplication: number;
-  poolToken: number;
-  minDeposit: number;
-  baseTxnFee: number;
-  marketRateBps: number;
-  totalDeposited: number;
-  totalSpent: number;
-  rewardBalance: number;
-  totalWithdrawn: number;
-  lastSpent: number;
-  lastRewards: number;
-  spentPerToken: bigint;
-  rewardPerToken: bigint;
-  lastPriceRound: number;
-};
-
-type PoolData = {
-  reservesA: number;
-  reservesB: number;
-  tokens: number;
-};
-
-type AccountData = {
-  balance: number;
-  assetBalance: number;
-  assetOptedIn?: boolean;
-};
+import { useGlobalState } from "../store/store";
+import { Algodv2 } from "algosdk";
 
 type AssetData = {
   block: number;
@@ -58,26 +16,6 @@ type AssetData = {
   minerReward: number;
   lastMiner: string;
   daysToHalving: number;
-};
-
-type BoxData = {
-  deposited: number;
-  depositedAt: number;
-  spentPerToken: bigint;
-  rewardPerToken: bigint;
-  totalSpent: number;
-  totalWithdrawn: number;
-  claimable: number;
-};
-
-type StakingProps = {
-  nodeUrl: string;
-  nodePort: number;
-  indexerUrl: string;
-  indexerPort: number;
-  applicationId: number;
-  assetId: number;
-  isMainnet?: boolean;
 };
 
 const createStateObject = (state: any) => {
@@ -105,7 +43,7 @@ const createStateObject = (state: any) => {
 };
 
 const readAssetData = async (
-  client: any,
+  client: Algodv2,
   applicationId: number
 ): Promise<AssetData> => {
   const data = await client.getApplicationByID(applicationId).do();
@@ -115,7 +53,7 @@ const readAssetData = async (
   // updateAverageCost(minereward / Math.pow(10, decimals));
 
   const totalSupply = 4_000_000;
-  const halvingDenominator = 2 ^ (state.halving || 0);
+  const halvingDenominator = 2 ^ (stateObj.halving || 0);
   const totalHalvingSupply = totalSupply / halvingDenominator;
   const halvingSupply = Number(stateObj["halving_supply"]) / 100_000_000;
   const halvingProgress =
@@ -139,9 +77,16 @@ const readAssetData = async (
 };
 
 const useAssetData = () => {
+  const algosdk = useGlobalState((state) => state.algosdk);
+
   const res = useQuery(
-    "assetData",
-    () => readAssetData(client, MAINNET_APP_INDEX),
+    ["assetData", algosdk],
+    () => {
+      if (!algosdk) {
+        throw new Error("algosdk is not set");
+      }
+      return readAssetData(algosdk, MAINNET_APP_INDEX);
+    },
     {
       refetchInterval: 3000,
     }

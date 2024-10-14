@@ -10,6 +10,7 @@ fn greet(name: &str) -> String {
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
+        .plugin(tauri_plugin_store::Builder::new().build())
         .plugin(tauri_plugin_log::Builder::new().build())
         .setup(|app| {
             app.set_activation_policy(tauri::ActivationPolicy::Accessory);
@@ -48,7 +49,8 @@ pub fn run() {
                             // let _ = window.set_position((position.x - size.unwrap().width / 2, 0.0));
                             let _ = window.set_position(tauri::Position::Physical(
                                 tauri::PhysicalPosition {
-                                    x: (position.x as f64 - size.unwrap().width as f64 / 2.0) as i32,
+                                    x: (position.x as f64 - size.unwrap().width as f64 / 2.0)
+                                        as i32,
                                     y: 0,
                                 },
                             ));
