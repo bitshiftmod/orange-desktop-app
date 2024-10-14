@@ -36,3 +36,7 @@ export const keyToBigint = (state: any, key: string): bigint => {
   }
   return BigInt(0);
 };
+
+export const shortenAddress = (address: string): string => {
+  return address.slice(0, 6) + "..." + address.slice(-6);
+}
