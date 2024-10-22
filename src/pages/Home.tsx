@@ -1,8 +1,8 @@
-import useAssetData from "../hooks/useAssetData";
-import { formatWithCommas } from "../utils";
-import usePriceData from "../hooks/usePriceData";
 import Row from "../components/Row";
+import useAssetData from "../hooks/useAssetData";
+import usePriceData from "../hooks/usePriceData";
 import { useGlobalState } from "../store/store";
+import { formatWithCommas, shortenAddress } from "../utils";
 
 const Home = () => {
   const algosdk = useGlobalState((state) => state.algosdk);
@@ -71,6 +71,10 @@ const Home = () => {
               <Row
                 label="Juicing Transactions:"
                 value={formatWithCommas(Number(assetData.totalTransactions))}
+              />
+              <Row
+                label="Last Miner:"
+                value={shortenAddress(assetData.lastMiner)}
               />
             </div>
           </div>

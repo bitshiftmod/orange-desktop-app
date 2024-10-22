@@ -1,7 +1,7 @@
+import { Algodv2, encodeAddress } from "algosdk";
 import { useQuery } from "react-query";
 import { MAINNET_APP_INDEX } from "../constants";
 import { useGlobalState } from "../store/store";
-import { Algodv2 } from "algosdk";
 
 type AssetData = {
   block: number;
@@ -14,11 +14,14 @@ type AssetData = {
   halvingProgress: number;
   minedSupply: number;
   minerReward: number;
+  currentMiner: string;
+  currentMinerEffort: number;
   lastMiner: string;
+  lastMinerEffort: number;
   daysToHalving: number;
 };
 
-const createStateObject = (state: any) => {
+const createStateObject = (state: any, addressKeys: Set<string>) => {
   const obj: any = {};
   for (const kv of state) {
     // @ts-ignore
@@ -28,8 +31,11 @@ const createStateObject = (state: any) => {
     // Check if value is a byte array or an integer
     if (value.type === 1) {
       // byte array
-      //@ts-ignore
-      obj[key] = Buffer.from(value.bytes, "base64").toString();
+      obj[key] = addressKeys.has(key)
+        ? //@ts-ignore
+          encodeAddress(Buffer.from(kv.value.bytes, "base64"))
+        : //@ts-ignore
+          Buffer.from(value.bytes, "base64").toString();
     } else if (value.type === 2) {
       // integer
       obj[key] = value.uint;
@@ -42,13 +48,16 @@ const createStateObject = (state: any) => {
   return obj;
 };
 
+const addressKeys = new Set(["last_miner", "current_miner"]);
+
 const readAssetData = async (
   client: Algodv2,
   applicationId: number
 ): Promise<AssetData> => {
   const data = await client.getApplicationByID(applicationId).do();
   const state = data["params"]["globalState"];
-  const stateObj = createStateObject(state);
+  const stateObj = createStateObject(state, addressKeys);
+  console.log(stateObj);
   const minerReward = Number(stateObj["miner_reward"]) / 100_000_000;
   // updateAverageCost(minereward / Math.pow(10, decimals));
 
@@ -71,7 +80,10 @@ const readAssetData = async (
     halvingProgress,
     minedSupply: Number(stateObj["mined_supply"]) / 100_000_000,
     minerReward,
+    currentMiner: stateObj["current_miner"],
+    currentMinerEffort: stateObj["current_miner_effort"],
     lastMiner: stateObj["last_miner"],
+    lastMinerEffort: stateObj["last_miner_effort"],
     daysToHalving,
   };
 };

@@ -52,7 +52,7 @@ const WalletModal = ({
           <LogoutModal
             onClose={() => {
               setShowLogoutModal(false);
-              onClose();
+              // onClose();
             }}
           />
         )}

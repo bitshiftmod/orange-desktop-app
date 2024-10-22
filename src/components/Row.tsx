@@ -1,10 +1,16 @@
-import { ReactNode } from "react";
+import { HTMLAttributes, ReactNode } from "react";
 
-const Row = ({ label, value }: { label: string; value: ReactNode }) => (
-    <div className="flex justify-between">
-      <div className="font-bold">{label}</div>
-      <div>{value}</div>
-    </div>
-  );
+interface RowProps extends HTMLAttributes<HTMLDivElement> {
+  label: string;
+  value: ReactNode;
+}
+
+const Row = ({ label, value, className, ...rest }: RowProps) => {
+  return (
+  <div className={`flex justify-between ${className}`} {...rest}>
+    <div className="font-bold">{label}</div>
+    <div>{value}</div>
+  </div>
+)};
   
 export default Row;
