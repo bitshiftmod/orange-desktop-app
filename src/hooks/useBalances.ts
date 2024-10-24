@@ -5,7 +5,7 @@ import useAccountData from "./useAccountData";
 
 export type Balances = {
   algo: number;
-  ora: number;
+  ora?: number;
 };
 
 const useBalances = () => {
@@ -18,12 +18,12 @@ const useBalances = () => {
       setBalances(undefined);
     } else {
       const algo = Number(accountData.amount) / 1_000_000;
-      const ora =
-        Number(
-          accountData.assets?.find(
-            (asset) => asset.assetId == BigInt(MAINNET_ASSET_INDEX).valueOf()
-          )?.amount || 0
-        ) / 100_000_000;
+
+      const oraAsset = accountData.assets?.find(
+        (asset) => asset.assetId == BigInt(MAINNET_ASSET_INDEX).valueOf()
+      );
+
+      const ora = oraAsset ? Number(oraAsset.amount) / 100_000_000 : undefined;
 
       setBalances({ algo, ora });
     }

@@ -1,5 +1,10 @@
 import { Store } from "@tauri-apps/plugin-store";
-import { Account, Algodv2, mnemonicToSecretKey, secretKeyToMnemonic } from "algosdk";
+import {
+  Account,
+  Algodv2,
+  mnemonicToSecretKey,
+  secretKeyToMnemonic,
+} from "algosdk";
 import { create } from "zustand";
 
 // ZUSTAND IN-MEMORY GLOBAL STORE
@@ -13,14 +18,22 @@ export type GlobalState = {
   algosdk?: Algodv2;
   store?: Store;
   minerWallet?: Account;
+  tpm: number;
+  fpt: number;
+  minerInterval?: number;
   setStore: (store: Store) => Promise<void>;
   setNodeConfig: (config: NodeConfig) => Promise<void>;
   setMinerWallet: (account: Account) => Promise<void>;
   clearMinerWallet: () => Promise<void>;
+  setTpm: (tpm: number) => void;
+  setFpt: (fpt: number) => void;
+  setMinerInterval: (interval?: number) => void;
 };
 
 export const useGlobalState = create<GlobalState>((set, get) => {
   return {
+    tpm: 60,
+    fpt: 2000,
     setStore: async (store: Store) => {
       let nodeConfig = await store.get<NodeConfig>("nodeConfig");
 
@@ -34,7 +47,8 @@ export const useGlobalState = create<GlobalState>((set, get) => {
         await store.save();
       }
 
-      const minerMnemonic = await store.get<string>("minerWallet") || undefined;
+      const minerMnemonic =
+        (await store.get<string>("minerWallet")) || undefined;
 
       const minerWallet = minerMnemonic
         ? mnemonicToSecretKey(minerMnemonic)
@@ -76,7 +90,6 @@ export const useGlobalState = create<GlobalState>((set, get) => {
       set({ minerWallet: account });
     },
     clearMinerWallet: async () => {
-
       const store = get().store;
 
       if (!store) {
@@ -85,6 +98,15 @@ export const useGlobalState = create<GlobalState>((set, get) => {
       await store.delete("minerWallet");
       await store.save();
       set({ minerWallet: undefined });
-    }
+    },
+    setTpm: (tpm: number) => {
+      set({ tpm });
+    },
+    setFpt: (fpt: number) => {
+      set({ fpt });
+    },
+    setMinerInterval: (interval?: number) => {
+      set({ minerInterval: interval });
+    },
   };
 });

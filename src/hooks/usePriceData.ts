@@ -27,7 +27,7 @@ const usePriceData = () => {
     "priceData",
     () => fetch(REQUEST_URL).then((res) => res.json() as Promise<PriceData>),
     {
-      refetchInterval: 3000,
+      refetchInterval: 5000,
     }
   );
 

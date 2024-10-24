@@ -7,7 +7,7 @@ interface RowProps extends HTMLAttributes<HTMLDivElement> {
 
 const Row = ({ label, value, className, ...rest }: RowProps) => {
   return (
-  <div className={`flex justify-between ${className}`} {...rest}>
+  <div className={`flex justify-between items-center ${className}`} {...rest}>
     <div className="font-bold">{label}</div>
     <div>{value}</div>
   </div>

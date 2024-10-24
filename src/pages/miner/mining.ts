@@ -1,18 +1,22 @@
 import algosdk, {
-    Account,
-    Algodv2,
-    signTransaction,
-    Transaction,
+  Account,
+  Algodv2,
+  signTransaction,
+  Transaction,
 } from "algosdk";
 import { MAINNET_APP_INDEX, MAINNET_ASSET_INDEX } from "../../constants";
 
 import dayjs from "dayjs";
 import abi from "../../abi/OrangeCoin.arc4.json";
 
+// global miner state
+// stored here for convenience for setInterval callback
 export let txIndex = 0;
 export let transactionsToSend = 0;
 export let miningMinute = 0;
 export let miningSecond = 0;
+export let lastMinerAddress = "";
+
 export declare type SignedTransaction = {
   txID: string;
   blob: Uint8Array;
@@ -38,7 +42,8 @@ const signAndSendMinerTransactions = async (
       .sendRawTransaction(signedTxs.map((b) => b.blob))
       .do();
     await algosdk.waitForConfirmation(client, txid, 5);
-  } catch {
+  } catch(e) {
+    console.error(e)
     throw new Error("Failed to sign transactions.");
   }
 };
@@ -91,14 +96,11 @@ export const optIn = async (
 //   ]).then(() => updateMinerData(address));
 // };
 
-const mine = async (
+export const mine = async (
   client: Algodv2,
   account: Account,
   tpm: number,
-  fpt: number,
-//   dAddress: string,
-//   mAddress: string,
-  lAddress: string
+  fpt: number
 ) => {
   const minerSigner = async (
     group: algosdk.Transaction[]
@@ -130,6 +132,7 @@ const mine = async (
   }
   transactionsToSend -= amount;
   miningSecond += 1;
+
   while (amount > 0) {
     const groupSize = amount > 16 ? 16 : amount;
     amount -= groupSize;
@@ -141,7 +144,7 @@ const mine = async (
         appID: MAINNET_APP_INDEX,
         method,
         methodArgs: [dAddress.publicKey],
-        appAccounts: [lAddress, dAddress],
+        appAccounts: [lastMinerAddress, dAddress],
         appForeignAssets: [MAINNET_ASSET_INDEX],
         sender: mAddress,
         signer: minerSigner,
@@ -156,4 +159,8 @@ const mine = async (
     //   .then(() => updateMinerData(address))
     //   .finally(() => setPendingTxs((txs) => txs - groupSize));
   }
+};
+
+export const setLastMinerAddress = (address: string) => {
+  lastMinerAddress = address;
 };

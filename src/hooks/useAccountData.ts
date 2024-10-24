@@ -6,7 +6,7 @@ const useAccountData = (account?: string | Address) => {
   const algosdk = useGlobalState((state) => state.algosdk);
 
   const res = useQuery(
-    ["assetData", algosdk, account],
+    ["accountData", algosdk, account],
     () => {
       if (!algosdk || !account) {
         throw new Error("algosdk or account is not set");
@@ -14,7 +14,7 @@ const useAccountData = (account?: string | Address) => {
       return algosdk.accountInformation(account).do();
     },
     {
-      refetchInterval: 3000,
+      refetchInterval: 1000,
     }
   );
 

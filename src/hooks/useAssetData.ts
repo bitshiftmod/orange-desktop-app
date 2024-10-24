@@ -57,7 +57,6 @@ const readAssetData = async (
   const data = await client.getApplicationByID(applicationId).do();
   const state = data["params"]["globalState"];
   const stateObj = createStateObject(state, addressKeys);
-  console.log(stateObj);
   const minerReward = Number(stateObj["miner_reward"]) / 100_000_000;
   // updateAverageCost(minereward / Math.pow(10, decimals));
 
@@ -100,7 +99,7 @@ const useAssetData = () => {
       return readAssetData(algosdk, MAINNET_APP_INDEX);
     },
     {
-      refetchInterval: 3000,
+      refetchInterval: 1000,
     }
   );
 
