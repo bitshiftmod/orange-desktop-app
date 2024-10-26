@@ -1,11 +1,7 @@
 import { Store } from "@tauri-apps/plugin-store";
-import {
-  Account,
-  Algodv2,
-  mnemonicToSecretKey,
-  secretKeyToMnemonic,
-} from "algosdk";
+import { Account, Algodv2 } from "algosdk";
 import { create } from "zustand";
+import { SavedAccount } from "../account";
 
 // ZUSTAND IN-MEMORY GLOBAL STORE
 export type NodeConfig = {
@@ -18,16 +14,17 @@ export type GlobalState = {
   algosdk?: Algodv2;
   store?: Store;
   minerWallet?: Account;
+  savedAccount?: SavedAccount;
   tpm: number;
   fpt: number;
-  minerInterval?: number;
+  minerInterval?: NodeJS.Timeout;
   setStore: (store: Store) => Promise<void>;
   setNodeConfig: (config: NodeConfig) => Promise<void>;
   setMinerWallet: (account: Account) => Promise<void>;
   clearMinerWallet: () => Promise<void>;
   setTpm: (tpm: number) => void;
   setFpt: (fpt: number) => void;
-  setMinerInterval: (interval?: number) => void;
+  setMinerInterval: (interval?: NodeJS.Timeout) => void;
 };
 
 export const useGlobalState = create<GlobalState>((set, get) => {
@@ -47,18 +44,14 @@ export const useGlobalState = create<GlobalState>((set, get) => {
         await store.save();
       }
 
-      const minerMnemonic =
-        (await store.get<string>("minerWallet")) || undefined;
-
-      const minerWallet = minerMnemonic
-        ? mnemonicToSecretKey(minerMnemonic)
-        : undefined;
+      const savedAccount =
+        (await store.get<SavedAccount>("savedAccount")) || undefined;
 
       const algosdk = nodeConfig.token
         ? new Algodv2(nodeConfig.token, nodeConfig.url, nodeConfig.port)
         : undefined;
 
-      set({ store, nodeConfig, algosdk, minerWallet });
+      set({ store, nodeConfig, algosdk, savedAccount });
     },
     setNodeConfig: async (nodeConfig: NodeConfig) => {
       const store = get().store;
@@ -85,9 +78,7 @@ export const useGlobalState = create<GlobalState>((set, get) => {
         throw new Error("store is not set");
       }
 
-      await store.set("minerWallet", secretKeyToMnemonic(account.sk));
-      await store.save();
-      set({ minerWallet: account });
+      set({ minerWallet: account, savedAccount: undefined });
     },
     clearMinerWallet: async () => {
       const store = get().store;
@@ -95,9 +86,7 @@ export const useGlobalState = create<GlobalState>((set, get) => {
       if (!store) {
         throw new Error("store is not set");
       }
-      await store.delete("minerWallet");
-      await store.save();
-      set({ minerWallet: undefined });
+      set({ minerWallet: undefined, savedAccount: undefined });
     },
     setTpm: (tpm: number) => {
       set({ tpm });
@@ -105,7 +94,7 @@ export const useGlobalState = create<GlobalState>((set, get) => {
     setFpt: (fpt: number) => {
       set({ fpt });
     },
-    setMinerInterval: (interval?: number) => {
+    setMinerInterval: (interval?: NodeJS.Timeout) => {
       set({ minerInterval: interval });
     },
   };
