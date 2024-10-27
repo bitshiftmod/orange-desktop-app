@@ -37,7 +37,7 @@ const Home = () => {
             <div className="rounded p-4">Please configure your local Algorand node to continue.</div>
           </div>
         ) : assetData ? (
-          <div className="mt-4 flex flex-col gap-4">
+          <div className="mt-4 flex flex-col gap-4 text-sm">
             <div className="rounded">
               <div className="bg-orange-950 h-2 w-full justify-start flex rounded-t overflow-clip">
                 <div

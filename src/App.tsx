@@ -11,7 +11,7 @@ import Node from "./pages/Node";
 function App() {
   useEffect(() => {
     getCurrentWindow().onFocusChanged((focused) => {
-      if (!focused) {
+      if (!focused.payload) {
         getCurrentWindow().hide();
       }
     });

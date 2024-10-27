@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
+import FormRow from "../components/FormRow";
 import Row from "../components/Row";
 import { useGlobalState } from "../store/store";
-import FormRow from "../components/FormRow";
 
 const Node = () => {
   const nodeConfig = useGlobalState((state) => state.nodeConfig);
@@ -28,14 +28,14 @@ const Node = () => {
         </div>
       </div>
 
-      <div className="rounded text-base mt-4 flex flex-col gap-2 bg-orange-200 p-4">
+      <div className="rounded text-base mt-4 flex flex-col gap-2 bg-orange-200 p-4 text-sm">
         {nodeConfig ? (
           <>
             <FormRow
               label="Token:"
               inputElement={
                 <input
-                  className="bg-orange-100 w-full rounded border border-orange-200 focus:border-orange-500 focus:outline-none"
+                  className="bg-orange-100 w-full rounded border border-orange-200 focus:border-orange-500 focus:outline-none p-1"
                   value={token}
                   onChange={(e) => setToken(e.target.value)}
                 />
@@ -47,7 +47,7 @@ const Node = () => {
               inputElement={
                 <input
                   type="number"
-                  className="bg-orange-100 w-full rounded border border-orange-200 focus:border-orange-500 focus:outline-none"
+                  className="bg-orange-100 w-full rounded border border-orange-200 focus:border-orange-500 focus:outline-none p-1"
                   value={port}
                   onChange={(e) => setPort(Number(e.target.value))}
                 />
