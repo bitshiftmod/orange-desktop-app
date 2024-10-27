@@ -1,9 +1,11 @@
+import { writeText } from '@tauri-apps/plugin-clipboard-manager';
 import algosdk, { Account } from "algosdk";
 import { useState } from "react";
 import QRCode from "react-qr-code";
 import { shortenAddress } from "../../utils";
 import CopyButton from "../CopyButton";
 import BaseModal from "./BaseModal";
+import ConfirmPasswordModal from "./ConfirmPasswordModal";
 import LogoutModal from "./LogoutModal";
 
 const WalletModal = ({
@@ -13,12 +15,15 @@ const WalletModal = ({
   minerWallet: Account;
   onClose: () => void;
 }) => {
+  const [showConfirmPasswordModal, setShowConfirmPasswordModal] =
+    useState(false);
   const [showLogoutModal, setShowLogoutModal] = useState(false);
+
   const copySeedPhrase = () => {
     if (!minerWallet) {
       return;
     }
-    navigator.clipboard.writeText(algosdk.secretKeyToMnemonic(minerWallet.sk));
+    writeText(algosdk.secretKeyToMnemonic(minerWallet.sk));
   };
 
   return (
@@ -31,13 +36,16 @@ const WalletModal = ({
           <div>{shortenAddress(minerWallet.addr.toString())}</div>
           <CopyButton text={minerWallet.addr.toString()} />
         </div>
-        <div className="flex justify-center">
+        <div className="flex flex-col justify-center rounded bg-orange-300 p-4 gap-2">
           <button
-            className="bg-orange-100 text-black rounded text-xs px-2 py-1"
-            onClick={copySeedPhrase}
+            className="bg-orange-500 text-white rounded text-xs px-2 py-1"
+            // onClick={() => setShowConfirmPasswordModal(true)}
+            onClick={() => setShowConfirmPasswordModal(true)}
           >
             Copy Seed Phrase
           </button>
+          <p className='text-xs text-red-500'>Warning: Keep this secure and do not share with anyone.</p>
+          <p className='text-xs text-orange-800'>Requires password to proceed.</p>
         </div>
         <div className="flex justify-center mt-6">
           <button
@@ -54,6 +62,12 @@ const WalletModal = ({
               setShowLogoutModal(false);
               // onClose();
             }}
+          />
+        )}
+        {showConfirmPasswordModal && (
+          <ConfirmPasswordModal
+            onSuccess={copySeedPhrase}
+            onClose={() => setShowConfirmPasswordModal(false)}
           />
         )}
       </div>

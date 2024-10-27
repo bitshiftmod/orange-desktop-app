@@ -9,6 +9,7 @@
     "core:default",
     "shell:allow-open",
     "log:default",
-    "store:default"
+    "store:default",
+    "clipboard-manager:allow-write-text"
   ]
 }
