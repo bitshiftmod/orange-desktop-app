@@ -2,6 +2,7 @@ import { Store } from "@tauri-apps/plugin-store";
 import { Account, Algodv2 } from "algosdk";
 import { create } from "zustand";
 import { SavedAccount } from "../account";
+import { setMinerSettings } from "../pages/miner/mining";
 
 // ZUSTAND IN-MEMORY GLOBAL STORE
 export type NodeConfig = {
@@ -90,9 +91,11 @@ export const useGlobalState = create<GlobalState>((set, get) => {
     },
     setTpm: (tpm: number) => {
       set({ tpm });
+      setMinerSettings(tpm, get().fpt);
     },
     setFpt: (fpt: number) => {
       set({ fpt });
+      setMinerSettings(get().tpm, fpt);
     },
     setMinerInterval: (interval?: NodeJS.Timeout) => {
       set({ minerInterval: interval });

@@ -17,6 +17,9 @@ export let miningMinute = 0;
 export let miningSecond = 0;
 export let lastMinerAddress = "";
 
+export let tpm = 60;
+export let fpt = 2000;
+
 export declare type SignedTransaction = {
   txID: string;
   blob: Uint8Array;
@@ -84,23 +87,9 @@ export const optIn = async (
   }
 };
 
-// const withdraw = async () => {
-//   signAndSendMinerTransactions([
-//     algosdk.makePaymentTxnWithSuggestedParamsFromObject({
-//       from: address,
-//       to: activeAccount?.address || address,
-//       amount: minerBalance,
-//       closeRemainderTo: activeAccount?.address || address,
-//       suggestedParams: await client.getTransactionParams().do(),
-//     }),
-//   ]).then(() => updateMinerData(address));
-// };
-
 export const mine = async (
   client: Algodv2,
   account: Account,
-  tpm: number,
-  fpt: number
 ) => {
   const minerSigner = async (
     group: algosdk.Transaction[]
@@ -164,3 +153,8 @@ export const mine = async (
 export const setLastMinerAddress = (address: string) => {
   lastMinerAddress = address;
 };
+
+export const setMinerSettings = (transactionsPerMinute: number, feePerTransaction: number) => {
+  tpm = transactionsPerMinute;
+  fpt = feePerTransaction;
+}

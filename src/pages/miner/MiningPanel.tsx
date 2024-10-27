@@ -69,7 +69,7 @@ const MiningSettingsPanel = () => {
               onClick={async () => {
                 if (algosdk && minerWallet) {
                   const interval = setInterval(() => {
-                    mine(algosdk, minerWallet, tpm, fpt);
+                    mine(algosdk, minerWallet);
                   }, 1000);
                   setMinerInterval(interval);
                 }
