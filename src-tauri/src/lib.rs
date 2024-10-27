@@ -14,10 +14,6 @@ pub fn run() {
         .plugin(tauri_plugin_store::Builder::new().build())
         .plugin(tauri_plugin_log::Builder::new().build())
         .setup(|app| {
-            app.set_activation_policy(tauri::ActivationPolicy::Accessory);
-            Ok(())
-        })
-        .setup(|app| {
             let quit_i = MenuItem::with_id(app, "quit", "Quit", true, None::<&str>)?;
             let menu = Menu::with_items(app, &[&quit_i])?;
             let _tray = TrayIconBuilder::new()
@@ -65,6 +61,20 @@ pub fn run() {
                     }
                 })
                 .build(app)?;
+
+            #[cfg(target_os = "macos")]
+            {
+                app.set_activation_policy(tauri::ActivationPolicy::Accessory);
+                // Set an empty menu to hide the menu bar
+                let menu = Menu::new(app)?;
+                app.set_menu(menu)?;
+
+                // Also set empty menu for the main window
+                if let Some(window) = app.get_webview_window("main") {
+                    window.set_menu(Menu::new(app)?)?;
+                }
+            }
+
             Ok(())
         })
         .plugin(tauri_plugin_shell::init())
