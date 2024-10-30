@@ -42,12 +42,10 @@ pub fn run() {
                             let size = window.outer_size().unwrap();
                             // println!("outer size: {:?}", size);
 
-                            let y_position = if (position.y < (size.height as f64 / 2.0)) {
+                            let y_position = if position.y < (size.height as f64 / 2.0) {
                                 0
                             } else {
-                                let screen_height =
-                                    window.current_monitor().unwrap().unwrap().size().height as i32;
-                                screen_height - size.height as i32 - 20
+                                (position.y - size.height as f64 - 20.0) as i32
                             };
 
                             let _ = window.set_position(tauri::Position::Physical(
