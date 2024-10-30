@@ -37,18 +37,23 @@ pub fn run() {
                         position,
                         ..
                     } => {
-                        println!("left click pressed and released");
-                        // in this example, let's show and focus the main window when the tray is clicked
                         let app = tray.app_handle();
                         if let Some(window) = app.get_webview_window("main") {
-                            let size = window.outer_size();
-                            println!("outer size: {:?}", size);
-                            // let _ = window.set_position((position.x - size.unwrap().width / 2, 0.0));
+                            let size = window.outer_size().unwrap();
+                            // println!("outer size: {:?}", size);
+
+                            let y_position = if (position.y < (size.height as f64 / 2.0)) {
+                                0
+                            } else {
+                                let screen_height =
+                                    window.current_monitor().unwrap().unwrap().size().height as i32;
+                                screen_height - size.height as i32 - 20
+                            };
+
                             let _ = window.set_position(tauri::Position::Physical(
                                 tauri::PhysicalPosition {
-                                    x: (position.x as f64 - size.unwrap().width as f64 / 2.0)
-                                        as i32,
-                                    y: 0,
+                                    x: (position.x as f64 - size.width as f64 / 2.0) as i32,
+                                    y: y_position,
                                 },
                             ));
 
@@ -57,7 +62,7 @@ pub fn run() {
                         }
                     }
                     _ => {
-                        println!("unhandled event {event:?}");
+                        // println!("unhandled event {event:?}");
                     }
                 })
                 .build(app)?;
