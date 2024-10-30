@@ -1,23 +1,30 @@
 import { useEffect, useState } from "react";
 import FormRow from "../components/FormRow";
-import Row from "../components/Row";
 import { useGlobalState } from "../store/store";
+import { isOnBlacklist } from "../utils";
 
 const Node = () => {
   const nodeConfig = useGlobalState((state) => state.nodeConfig);
   const setNodeConfig = useGlobalState((state) => state.setNodeConfig);
 
   const [token, setToken] = useState<string>("");
+  const [url, setUrl] = useState<string>("");
   const [port, setPort] = useState<number>(8080);
 
   useEffect(() => {
     if (nodeConfig) {
       setToken(nodeConfig.token);
+      setUrl(nodeConfig.url);
       setPort(nodeConfig.port);
     }
   }, [nodeConfig]);
 
-  const modified = token !== nodeConfig?.token || port !== nodeConfig?.port;
+  const modified =
+    token !== nodeConfig?.token ||
+    url != nodeConfig?.url ||
+    port !== nodeConfig?.port;
+
+  const blacklisted = isOnBlacklist(url);
 
   return (
     <div className="size-full flex flex-col p-6">
@@ -41,7 +48,17 @@ const Node = () => {
                 />
               }
             />
-            <Row label="Server:" value="http://localhost" />
+
+            <FormRow
+              label="Server:"
+              inputElement={
+                <input
+                  className="bg-orange-100 w-full rounded border border-orange-200 focus:border-orange-500 focus:outline-none p-1"
+                  value={url}
+                  onChange={(e) => setUrl(e.target.value)}
+                />
+              }
+            />
             <FormRow
               label="Port:"
               inputElement={
@@ -53,16 +70,33 @@ const Node = () => {
                 />
               }
             />
+            {blacklisted && (
+              <div className="text-red-500 text-xs">
+                Free APIs are not allowed to be used with this application. Please use your own node. 
+              </div>
+            )}
 
-            <div className="flex justify-center mt-4">
+            <div className="flex justify-center mt-4 gap-4">
               <button
-                disabled={!modified}
+                disabled={!modified || blacklisted}
                 className="bg-orange-500 text-white rounded px-4 py-1 disabled:bg-orange-500/50"
                 onClick={() => {
-                  setNodeConfig({ token, port, url: "http://localhost" });
+                  setNodeConfig({ token, port, url });
                 }}
               >
                 Save
+              </button>
+
+              <button
+                disabled={!modified || blacklisted}
+                className="bg-orange-500 text-white rounded px-4 py-1 disabled:bg-orange-500/50"
+                onClick={() => {
+                  setToken(nodeConfig.token);
+                  setUrl(nodeConfig.url);
+                  setPort(nodeConfig.port);
+                }}
+              >
+                Reset 
               </button>
             </div>
           </>
