@@ -28,6 +28,7 @@ pub fn run() {
                 .on_menu_event(|app, event| match event.id().as_ref() {
                     "showWindow" => {
                         if let Some(window) = app.get_webview_window("main") {
+                            #[cfg(not(target_os = "linux"))]
                             let _ = window.as_ref().window().move_window(Position::TrayCenter);
                             let _ = window.show();
                             let _ = window.set_focus();
