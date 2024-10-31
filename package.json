@@ -1,7 +1,7 @@
 {
   "name": "orange-desktop-app",
   "private": true,
-  "version": "1.0.0-alpha1",
+  "version": "0.3.0",
   "type": "module",
   "scripts": {
     "dev": "vite",

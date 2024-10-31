@@ -1,6 +1,10 @@
-use tauri::menu::{Menu, MenuItem};
-use tauri::tray::{MouseButton, MouseButtonState, TrayIconBuilder, TrayIconEvent};
 use tauri::Manager;
+
+#[cfg(not(target_os = "linux"))]
+use tauri::menu::{Menu, MenuItem};
+#[cfg(not(target_os = "linux"))]
+use tauri::tray::{MouseButton, MouseButtonState, TrayIconBuilder, TrayIconEvent};
+#[cfg(not(target_os = "linux"))]
 use tauri_plugin_positioner::{Position, WindowExt};
 
 // Learn more about Tauri commands at https://tauri.app/v1/guides/features/command
@@ -15,54 +19,66 @@ pub fn run() {
         .plugin(tauri_plugin_clipboard_manager::init())
         .plugin(tauri_plugin_store::Builder::new().build())
         .plugin(tauri_plugin_log::Builder::new().build())
+        .on_window_event(|window, event| match event {
+            #[cfg(not(target_os = "linux"))]
+            tauri::WindowEvent::Focused(focused) => {
+                if !focused {
+                    let _ = window.hide();
+                }
+            }
+            _ => {}
+        })
         .setup(|app| {
-            let show_window =
-                MenuItem::with_id(app, "showWindow", "Show Window", true, None::<&str>)?;
-            let quit_i = MenuItem::with_id(app, "quit", "Quit", true, None::<&str>)?;
-            let menu = Menu::with_items(app, &[&show_window, &quit_i])?;
-            let _tray = TrayIconBuilder::new()
-                .icon(app.default_window_icon().unwrap().clone())
-                .icon_as_template(true)
-                .menu(&menu)
-                .menu_on_left_click(false)
-                .on_menu_event(|app, event| match event.id().as_ref() {
-                    "showWindow" => {
-                        if let Some(window) = app.get_webview_window("main") {
-                            #[cfg(not(target_os = "linux"))]
-                            let _ = window.as_ref().window().move_window(Position::TrayCenter);
-                            let _ = window.show();
-                            let _ = window.set_focus();
-                        }
-                    }
-                    "quit" => {
-                        println!("quit menu item was clicked");
-                        app.exit(0);
-                    }
-                    _ => {
-                        println!("menu item {:?} not handled", event.id());
-                    }
-                })
-                .on_tray_icon_event(|tray_handle, event| {
-                    tauri_plugin_positioner::on_tray_event(tray_handle.app_handle(), &event);
+            #[cfg(target_os = "linux")]
+            if let Some(window) = app.get_webview_window("main") {
+                let _ = window.set_decorations(true);
+                let _ = window.set_title("Orange Desktop App");
+                let _ = window.set_closable(true);
+                let _ = window.set_skip_taskbar(false);
+                let _ = window.center();
+                let _ = window.show();
+            }
 
-                    match event {
-                        TrayIconEvent::Click {
-                            button: MouseButton::Left,
-                            button_state: MouseButtonState::Up,
-                            ..
-                        } => {
-                            let app = tray_handle.app_handle();
-                            if let Some(window) = app.get_webview_window("main") {
-                                let _ = window.as_ref().window().move_window(Position::TrayCenter);
-                                let _ = window.show();
-                                let _ = window.set_focus();
+            #[cfg(not(target_os = "linux"))]
+            {
+                let quit_i = MenuItem::with_id(app, "quit", "Quit", true, None::<&str>)?;
+                let menu = Menu::with_items(app, &[&quit_i])?;
+                let _tray = TrayIconBuilder::new()
+                    .icon(app.default_window_icon().unwrap().clone())
+                    .icon_as_template(true)
+                    .menu(&menu)
+                    .menu_on_left_click(false)
+                    .on_menu_event(|app, event| match event.id().as_ref() {
+                        "quit" => {
+                            app.exit(0);
+                        }
+                        _ => {
+                            println!("menu item {:?} not handled", event.id());
+                        }
+                    })
+                    .on_tray_icon_event(|tray_handle, event| {
+                        tauri_plugin_positioner::on_tray_event(tray_handle.app_handle(), &event);
+
+                        match event {
+                            TrayIconEvent::Click {
+                                button: MouseButton::Left,
+                                button_state: MouseButtonState::Up,
+                                ..
+                            } => {
+                                let app = tray_handle.app_handle();
+                                if let Some(window) = app.get_webview_window("main") {
+                                    let _ =
+                                        window.as_ref().window().move_window(Position::TrayCenter);
+                                    let _ = window.show();
+                                    let _ = window.set_focus();
+                                }
                             }
-                        }
 
-                        _ => {}
-                    }
-                })
-                .build(app)?;
+                            _ => {}
+                        }
+                    })
+                    .build(app)?;
+            }
 
             #[cfg(target_os = "macos")]
             {
