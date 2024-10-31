@@ -782,6 +782,13 @@
   dependencies:
     "@tauri-apps/api" "^2.0.0"
 
+"@tauri-apps/plugin-positioner@~2":
+  version "2.0.1"
+  resolved "https://registry.yarnpkg.com/@tauri-apps/plugin-positioner/-/plugin-positioner-2.0.1.tgz#26d79ac43fc1ec6b5af1a2dc9dafd20adf4dd99b"
+  integrity sha512-qZY3qiFnt4XU7pYiew17pso9Wg+lgfr6UBva4uvAuWaeW+6KaZCrGJKyr6GLHDar/Lc5KQV392jKMswfrwOplw==
+  dependencies:
+    "@tauri-apps/api" "^2.0.0"
+
 "@tauri-apps/plugin-shell@>=2.0.0":
   version "2.0.0"
   resolved "https://registry.npmjs.org/@tauri-apps/plugin-shell/-/plugin-shell-2.0.0.tgz"

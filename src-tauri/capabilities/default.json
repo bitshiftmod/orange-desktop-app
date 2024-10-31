@@ -2,15 +2,15 @@
   "$schema": "../gen/schemas/desktop-schema.json",
   "identifier": "default",
   "description": "Capability for the main window",
-  "windows": [
-    "main"
-  ],
+  "windows": ["main"],
   "permissions": [
     "core:default",
     "shell:allow-open",
     "log:default",
     "store:default",
     "clipboard-manager:allow-write-text",
-    "core:window:allow-hide"
+    "core:window:allow-hide",
+    "positioner:allow-move-window",
+    "positioner:allow-set-tray-icon-state"
   ]
 }
