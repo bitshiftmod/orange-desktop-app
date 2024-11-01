@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.3.0] - 2024-10-31
+
+### Added
+
+* New Linux Desktop build: App runs as a standard desktop app due to Tauri limitations with system tray on Linux. Functionality is otherwise the same as the system tray version on other OS's. 
+
+
 ## [0.2.0] - 2024-10-30
 
 ### Updated
