@@ -34,7 +34,7 @@ export type GlobalState = {
   setNodeConfig: (config: NodeConfig) => Promise<void>;
   setMinerWallet: (account: Account) => Promise<void>;
   clearMinerWallet: () => Promise<void>;
-  updateMinerConfig: (config: MinerConfig) => void;
+  updateMinerConfig: (config: MinerConfig) => Promise<void>;
   setMinerInterval: (interval?: NodeJS.Timeout) => void;
 };
 
@@ -59,6 +59,18 @@ export const useGlobalState = create<GlobalState>((set, get) => {
         await store.save();
       }
 
+      let minerConfig = await store.get<MinerConfig>("minerConfig");
+      if(!minerConfig) {
+        minerConfig = {
+          tpm: 60,
+          fpt: 2000,
+          onMine: OnMineAction.HODL,
+          lpAssetId: 0,
+        };
+        await store.set("minerConfig", minerConfig);
+        await store.save();
+      }
+
       const savedAccount =
         (await store.get<SavedAccount>("savedAccount")) || undefined;
 
@@ -66,7 +78,7 @@ export const useGlobalState = create<GlobalState>((set, get) => {
         ? new Algodv2(nodeConfig.token, nodeConfig.url, nodeConfig.port)
         : undefined;
 
-      set({ store, nodeConfig, algosdk, savedAccount });
+      set({ store, nodeConfig, algosdk, savedAccount, minerConfig });
     },
     setNodeConfig: async (nodeConfig: NodeConfig) => {
       const store = get().store;
@@ -103,7 +115,16 @@ export const useGlobalState = create<GlobalState>((set, get) => {
       }
       set({ minerWallet: undefined, savedAccount: undefined });
     },
-    updateMinerConfig: (config: MinerConfig) => {
+    updateMinerConfig: async (config: MinerConfig) => {
+
+      const store = get().store;
+
+      if (!store) {
+        throw new Error("store is not set");
+      }
+      await store.set("minerConfig", config);
+      await store.save();
+
       set({ minerConfig: config });
     },
     setMinerInterval: (interval?: NodeJS.Timeout) => {
