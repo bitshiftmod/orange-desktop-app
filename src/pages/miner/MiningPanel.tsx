@@ -5,7 +5,7 @@ import { MAINNET_APP_INDEX } from "../../constants";
 import useAccountData from "../../hooks/useAccountData";
 import useAssetData from "../../hooks/useAssetData";
 import useBalances from "../../hooks/useBalances";
-import { supportedLPTokens } from "../../lib/token";
+import { addToLP, supportedLPTokens } from "../../lib/token";
 import { OnMineAction, useGlobalState } from "../../store/store";
 import SliderPanel from "./SliderPanel";
 import { mine, optIn } from "./mining";
@@ -50,30 +50,30 @@ const MiningSettingsPanel = () => {
     }
   }, [accountData]);
 
-  // useEffect(() => {
-  //   if (assetData && minerWallet && assetData.block !== lastOraMinedRound) {
-  //     setLastOraMinedRound(assetData.block);
+  useEffect(() => {
+    if (assetData && minerWallet && assetData.block !== lastOraMinedRound) {
+      setLastOraMinedRound(assetData.block);
 
-  //     if (assetData.lastMiner === minerWallet.addr.toString()) {
-  //       setOraMinedMessage(
-  //         `You mined ${assetData.minerReward} ORA at Block ${assetData.block}`
-  //       );
+      if (assetData.lastMiner === minerWallet.addr.toString()) {
+        setOraMinedMessage(
+          `You mined ${assetData.minerReward} ORA at Block ${assetData.block}`
+        );
 
-  //       if (minerConfig.onMine == OnMineAction.ADD_TO_LP) {
-  //         if (algosdk && minerWallet && assetData?.minerReward) {
-  //           addToLP(
-  //             algosdk,
-  //             minerWallet,
-  //             assetData.minerReward,
-  //             minerConfig.lpAssetId
-  //           );
-  //         }
-  //       }
-  //     } else {
-  //       setOraMinedMessage(undefined);
-  //     }
-  //   }
-  // }, [assetData, lastOraMinedRound, minerWallet, minerConfig]);
+        if (minerConfig.onMine == OnMineAction.ADD_TO_LP) {
+          if (algosdk && minerWallet && assetData?.minerReward) {
+            addToLP(
+              algosdk,
+              minerWallet,
+              assetData.minerReward,
+              minerConfig.lpAssetId
+            );
+          }
+        }
+      } else {
+        setOraMinedMessage(undefined);
+      }
+    }
+  }, [assetData, lastOraMinedRound, minerWallet, minerConfig]);
 
   return (
     <div>
@@ -178,10 +178,6 @@ const MiningSettingsPanel = () => {
 const OnMinePanel = () => {
   const minerConfig = useGlobalState((state) => state.minerConfig);
   const updateMinerConfig = useGlobalState((state) => state.updateMinerConfig);
-
-  const { data: assetData } = useAssetData();
-  const minerWallet = useGlobalState((state) => state.minerWallet);
-  const algosdk = useGlobalState((state) => state.algosdk);
 
   return (
     <div className="rounded text-base flex flex-col gap-2 bg-orange-200 p-2">
