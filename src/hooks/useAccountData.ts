@@ -11,7 +11,7 @@ const useAccountData = (account?: string | Address) => {
       if (!algosdk || !account) {
         throw new Error("algosdk or account is not set");
       }
-      return algosdk.accountInformation(account).do();
+      return algosdk.accountInformation(account.toString()).do();
     },
     {
       refetchInterval: 1000,

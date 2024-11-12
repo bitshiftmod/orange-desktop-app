@@ -2,7 +2,7 @@ import { writeText } from '@tauri-apps/plugin-clipboard-manager';
 import algosdk, { Account } from "algosdk";
 import { useState } from "react";
 import QRCode from "react-qr-code";
-import { shortenAddress } from "../../utils";
+import { shortenAddress } from "../../lib/utils";
 import CopyButton from "../CopyButton";
 import BaseModal from "./BaseModal";
 import ConfirmPasswordModal from "./ConfirmPasswordModal";

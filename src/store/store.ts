@@ -2,7 +2,6 @@ import { Store } from "@tauri-apps/plugin-store";
 import { Account, Algodv2 } from "algosdk";
 import { create } from "zustand";
 import { SavedAccount } from "../account";
-import { setMinerSettings } from "../pages/miner/mining";
 
 // ZUSTAND IN-MEMORY GLOBAL STORE
 export type NodeConfig = {
@@ -10,28 +9,43 @@ export type NodeConfig = {
   url: string;
   port: number;
 };
+
+export enum OnMineAction {
+  HODL,
+  ADD_TO_LP,
+}
+
+export type MinerConfig = {
+  tpm: number;
+  fpt: number;
+  onMine: OnMineAction;
+  pairingAssetId?: number;
+  lpAssetId: number;
+};
 export type GlobalState = {
   nodeConfig?: NodeConfig;
   algosdk?: Algodv2;
   store?: Store;
   minerWallet?: Account;
   savedAccount?: SavedAccount;
-  tpm: number;
-  fpt: number;
+  minerConfig: MinerConfig;
   minerInterval?: NodeJS.Timeout;
   setStore: (store: Store) => Promise<void>;
   setNodeConfig: (config: NodeConfig) => Promise<void>;
   setMinerWallet: (account: Account) => Promise<void>;
   clearMinerWallet: () => Promise<void>;
-  setTpm: (tpm: number) => void;
-  setFpt: (fpt: number) => void;
+  updateMinerConfig: (config: MinerConfig) => void;
   setMinerInterval: (interval?: NodeJS.Timeout) => void;
 };
 
 export const useGlobalState = create<GlobalState>((set, get) => {
   return {
-    tpm: 60,
-    fpt: 2000,
+    minerConfig: {
+      tpm: 60,
+      fpt: 2000,
+      onMine: OnMineAction.HODL,
+      lpAssetId: 0,
+    },
     setStore: async (store: Store) => {
       let nodeConfig = await store.get<NodeConfig>("nodeConfig");
 
@@ -89,13 +103,8 @@ export const useGlobalState = create<GlobalState>((set, get) => {
       }
       set({ minerWallet: undefined, savedAccount: undefined });
     },
-    setTpm: (tpm: number) => {
-      set({ tpm });
-      setMinerSettings(tpm, get().fpt);
-    },
-    setFpt: (fpt: number) => {
-      set({ fpt });
-      setMinerSettings(get().tpm, fpt);
+    updateMinerConfig: (config: MinerConfig) => {
+      set({ minerConfig: config });
     },
     setMinerInterval: (interval?: NodeJS.Timeout) => {
       set({ minerInterval: interval });

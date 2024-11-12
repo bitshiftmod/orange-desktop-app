@@ -13,7 +13,7 @@ type AssetData = {
   totalHalvingSupply: number;
   halvingProgress: number;
   minedSupply: number;
-  minerReward: number;
+  minerReward: bigint;
   currentMiner: string;
   currentMinerEffort: number;
   lastMiner: string;
@@ -50,14 +50,14 @@ const createStateObject = (state: any, addressKeys: Set<string>) => {
 
 const addressKeys = new Set(["last_miner", "current_miner"]);
 
-const readAssetData = async (
+export const readAssetData = async (
   client: Algodv2,
   applicationId: number
 ): Promise<AssetData> => {
   const data = await client.getApplicationByID(applicationId).do();
-  const state = data["params"]["globalState"];
+  const state = data["params"]["global-state"];
   const stateObj = createStateObject(state, addressKeys);
-  const minerReward = Number(stateObj["miner_reward"]) / 100_000_000;
+  const minerReward = stateObj["miner_reward"];
   // updateAverageCost(minereward / Math.pow(10, decimals));
 
   const totalSupply = 4_000_000;
@@ -66,7 +66,7 @@ const readAssetData = async (
   const halvingSupply = Number(stateObj["halving_supply"]) / 100_000_000;
   const halvingProgress =
     100 - (100 * (halvingSupply || 0)) / totalHalvingSupply;
-  const daysToHalving = (2.86 * halvingSupply * 5) / (minerReward * 86400);
+  const daysToHalving = (2.86 * halvingSupply * 5) / (minerReward / 100_000_000 * 86400);
 
   return {
     block: stateObj["block"],

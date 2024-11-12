@@ -1,8 +1,8 @@
 import Row from "../components/Row";
 import useAssetData from "../hooks/useAssetData";
 import usePriceData from "../hooks/usePriceData";
+import { formatWithCommas, shortenAddress } from "../lib/utils";
 import { useGlobalState } from "../store/store";
-import { formatWithCommas, shortenAddress } from "../utils";
 
 const Home = () => {
   const algosdk = useGlobalState((state) => state.algosdk);

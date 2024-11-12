@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import FormRow from "../components/FormRow";
+import { isOnBlacklist } from "../lib/utils";
 import { useGlobalState } from "../store/store";
-import { isOnBlacklist } from "../utils";
 
 const Node = () => {
   const nodeConfig = useGlobalState((state) => state.nodeConfig);
