@@ -1,5 +1,8 @@
+import { listen } from "@tauri-apps/api/event";
+import { ChevronDown } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useQueryClient } from "react-query";
+import RadioButton from "../../components/RadioButton";
 import Row from "../../components/Row";
 import { MAINNET_APP_INDEX } from "../../constants";
 import useAccountData from "../../hooks/useAccountData";
@@ -26,8 +29,10 @@ const MiningSettingsPanel = () => {
   const algosdk = useGlobalState((state) => state.algosdk);
   const minerConfig = useGlobalState((state) => state.minerConfig);
   const updateMinerConfig = useGlobalState((state) => state.updateMinerConfig);
-  const minerInterval = useGlobalState((state) => state.minerInterval);
-  const setMinerInterval = useGlobalState((state) => state.setMinerInterval);
+  const minerUnlistenFn = useGlobalState((state) => state.minerUnlistenFn);
+  const setMinerUnlistenFn = useGlobalState(
+    (state) => state.setMinerUnlistenFn
+  );
 
   const { data: assetData } = useAssetData();
   const { data: accountData } = useAccountData(minerWallet?.addr.toString());
@@ -79,13 +84,13 @@ const MiningSettingsPanel = () => {
     <div>
       <div className="rounded text-base mt-4 flex flex-col gap-2 bg-orange-200 p-4">
         {appOptedIn ? (
-          minerInterval ? (
+          minerUnlistenFn ? (
             <button
               className="bg-orange-500 text-white rounded px-4 py-1 w-full"
               onClick={async () => {
-                if (minerInterval) {
-                  clearInterval(minerInterval);
-                  setMinerInterval(undefined);
+                if (minerUnlistenFn !== undefined) {
+                  minerUnlistenFn();
+                  setMinerUnlistenFn(undefined);
                 }
               }}
             >
@@ -96,10 +101,11 @@ const MiningSettingsPanel = () => {
               className="bg-orange-500 text-white rounded px-4 py-1 w-full"
               onClick={async () => {
                 if (algosdk && minerWallet) {
-                  const interval = setInterval(() => {
+                  const unlisten = await listen("timer-tick", () => {
                     mine(algosdk, minerWallet);
-                  }, 1000);
-                  setMinerInterval(interval);
+                  });
+
+                  setMinerUnlistenFn(unlisten);
                 }
               }}
             >
@@ -183,25 +189,24 @@ const OnMinePanel = () => {
     <div className="rounded text-base flex flex-col gap-2 bg-orange-200 p-2">
       <div className="text-center text-sm font-bold w-full">On Mine</div>
 
-      <div className="flex flex-col text-sm p-2">
-        <div className="flex items-center gap-2">
-          <input
-            type="radio"
-            name="onMine"
-            checked={minerConfig.onMine == OnMineAction.HODL}
-            value={OnMineAction.HODL}
-            onChange={() => {
-              updateMinerConfig({
-                ...minerConfig,
-                onMine: OnMineAction.HODL,
-              });
-            }}
-          />
-          <label>HODL</label>
-        </div>
-        <div className="flex items-center gap-2">
-          <input
-            type="radio"
+      <div className="flex flex-col text-sm p-2 gap-2">
+        <RadioButton
+          id="hodl"
+          label="HODL"
+          name="onMine"
+          checked={minerConfig.onMine == OnMineAction.HODL}
+          value={OnMineAction.HODL}
+          onChange={() => {
+            updateMinerConfig({
+              ...minerConfig,
+              onMine: OnMineAction.HODL,
+            });
+          }}
+        />
+        <div className="flex gap-2 items-center">
+          <RadioButton
+            id="addToLp"
+            label="Add to LP"
             name="onMine"
             checked={minerConfig.onMine == OnMineAction.ADD_TO_LP}
             value={OnMineAction.ADD_TO_LP}
@@ -212,24 +217,25 @@ const OnMinePanel = () => {
               });
             }}
           />
-          <label>Add to LP</label>
-        </div>
-        <div className="pt-2 px-4">
-          <select
-            value={minerConfig.lpAssetId}
-            onChange={(e) => {
-              updateMinerConfig({
-                ...minerConfig,
-                lpAssetId: Number(e.target.value),
-              });
-            }}
-          >
-            {supportedLPTokens.map((token) => (
-              <option key={token.id} value={token.id}>
-                {token.name}
-              </option>
-            ))}
-          </select>
+          <div className="pr-4 flex w-fit items-center h-full relative">
+            <select
+              className="appearance-none rounded border border-orange-500  bg-orange-100 pl-2 pr-6 focus:ring-0 focus:outline-none"
+              value={minerConfig.lpAssetId}
+              onChange={(e) => {
+                updateMinerConfig({
+                  ...minerConfig,
+                  lpAssetId: Number(e.target.value),
+                });
+              }}
+            >
+              {supportedLPTokens.map((token) => (
+                <option key={token.id} value={token.id}>
+                  {token.name}
+                </option>
+              ))}
+            </select>
+            <ChevronDown className="absolute right-5 size-4 top-1 text-orange-500 pointer-events-none" />
+          </div>
         </div>
         {/* <button
           className="bg-orange-500 text-white rounded px-4 py-1 w-full"
