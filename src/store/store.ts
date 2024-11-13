@@ -1,3 +1,4 @@
+import { UnlistenFn } from "@tauri-apps/api/event";
 import { Store } from "@tauri-apps/plugin-store";
 import { Account, Algodv2 } from "algosdk";
 import { create } from "zustand";
@@ -29,13 +30,13 @@ export type GlobalState = {
   minerWallet?: Account;
   savedAccount?: SavedAccount;
   minerConfig: MinerConfig;
-  minerInterval?: NodeJS.Timeout;
+  minerUnlistenFn?: UnlistenFn;
   setStore: (store: Store) => Promise<void>;
   setNodeConfig: (config: NodeConfig) => Promise<void>;
   setMinerWallet: (account: Account) => Promise<void>;
   clearMinerWallet: () => Promise<void>;
   updateMinerConfig: (config: MinerConfig) => Promise<void>;
-  setMinerInterval: (interval?: NodeJS.Timeout) => void;
+  setMinerUnlistenFn: (unlistenFn?: UnlistenFn) => Promise<void>;
 };
 
 export const useGlobalState = create<GlobalState>((set, get) => {
@@ -127,8 +128,8 @@ export const useGlobalState = create<GlobalState>((set, get) => {
 
       set({ minerConfig: config });
     },
-    setMinerInterval: (interval?: NodeJS.Timeout) => {
-      set({ minerInterval: interval });
+    setMinerUnlistenFn: async (unlistenFn?: UnlistenFn) => {
+      set({ minerUnlistenFn: unlistenFn });
     },
   };
 });

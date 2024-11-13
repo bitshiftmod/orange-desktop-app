@@ -1,4 +1,6 @@
-use tauri::Manager;
+use tauri::{Manager, Emitter};
+use tokio::time::{sleep, Duration};
+
 
 #[cfg(not(target_os = "linux"))]
 use tauri::menu::{Menu, MenuItem};
@@ -92,6 +94,18 @@ pub fn run() {
                     window.set_menu(Menu::new(app)?)?;
                 }
             }
+
+            let app_handle = app.app_handle().clone();
+            tauri::async_runtime::spawn(async move {
+                loop {
+                    // Emit "timer-tick" event to the window
+                    app_handle
+                        .emit("timer-tick", ())
+                        .unwrap();
+                    sleep(Duration::from_secs(1)).await;
+                }
+            });
+
 
             Ok(())
         })
