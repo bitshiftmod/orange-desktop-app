@@ -219,7 +219,7 @@ const OnMinePanel = () => {
           />
           <div className="pr-4 flex w-fit items-center h-full relative">
             <select
-              className="appearance-none rounded border border-orange-500  bg-orange-100 pl-2 pr-6 focus:ring-0 focus:outline-none"
+              className="appearance-none rounded text-white bg-orange-500 pl-2 pr-6 py-1 focus:ring-0 focus:outline-none text-sm"
               value={minerConfig.lpAssetId}
               onChange={(e) => {
                 updateMinerConfig({
@@ -234,7 +234,7 @@ const OnMinePanel = () => {
                 </option>
               ))}
             </select>
-            <ChevronDown className="absolute right-5 size-4 top-1 text-orange-500 pointer-events-none" />
+            <ChevronDown className="absolute right-5 size-4 top-[.375rem] text-white pointer-events-none" />
           </div>
         </div>
         {/* <button
