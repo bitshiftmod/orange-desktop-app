@@ -1,8 +1,8 @@
+import { UnlistenFn } from "@tauri-apps/api/event";
 import { Store } from "@tauri-apps/plugin-store";
 import { Account, Algodv2 } from "algosdk";
 import { create } from "zustand";
 import { SavedAccount } from "../account";
-import { setMinerSettings } from "../pages/miner/mining";
 
 // ZUSTAND IN-MEMORY GLOBAL STORE
 export type NodeConfig = {
@@ -10,28 +10,43 @@ export type NodeConfig = {
   url: string;
   port: number;
 };
+
+export enum OnMineAction {
+  HODL,
+  ADD_TO_LP,
+}
+
+export type MinerConfig = {
+  tpm: number;
+  fpt: number;
+  onMine: OnMineAction;
+  pairingAssetId?: number;
+  lpAssetId: number;
+};
 export type GlobalState = {
   nodeConfig?: NodeConfig;
   algosdk?: Algodv2;
   store?: Store;
   minerWallet?: Account;
   savedAccount?: SavedAccount;
-  tpm: number;
-  fpt: number;
-  minerInterval?: NodeJS.Timeout;
+  minerConfig: MinerConfig;
+  minerUnlistenFn?: UnlistenFn;
   setStore: (store: Store) => Promise<void>;
   setNodeConfig: (config: NodeConfig) => Promise<void>;
   setMinerWallet: (account: Account) => Promise<void>;
   clearMinerWallet: () => Promise<void>;
-  setTpm: (tpm: number) => void;
-  setFpt: (fpt: number) => void;
-  setMinerInterval: (interval?: NodeJS.Timeout) => void;
+  updateMinerConfig: (config: MinerConfig) => Promise<void>;
+  setMinerUnlistenFn: (unlistenFn?: UnlistenFn) => Promise<void>;
 };
 
 export const useGlobalState = create<GlobalState>((set, get) => {
   return {
-    tpm: 60,
-    fpt: 2000,
+    minerConfig: {
+      tpm: 60,
+      fpt: 2000,
+      onMine: OnMineAction.HODL,
+      lpAssetId: 0,
+    },
     setStore: async (store: Store) => {
       let nodeConfig = await store.get<NodeConfig>("nodeConfig");
 
@@ -45,6 +60,18 @@ export const useGlobalState = create<GlobalState>((set, get) => {
         await store.save();
       }
 
+      let minerConfig = await store.get<MinerConfig>("minerConfig");
+      if(!minerConfig) {
+        minerConfig = {
+          tpm: 60,
+          fpt: 2000,
+          onMine: OnMineAction.HODL,
+          lpAssetId: 0,
+        };
+        await store.set("minerConfig", minerConfig);
+        await store.save();
+      }
+
       const savedAccount =
         (await store.get<SavedAccount>("savedAccount")) || undefined;
 
@@ -52,7 +79,7 @@ export const useGlobalState = create<GlobalState>((set, get) => {
         ? new Algodv2(nodeConfig.token, nodeConfig.url, nodeConfig.port)
         : undefined;
 
-      set({ store, nodeConfig, algosdk, savedAccount });
+      set({ store, nodeConfig, algosdk, savedAccount, minerConfig });
     },
     setNodeConfig: async (nodeConfig: NodeConfig) => {
       const store = get().store;
@@ -89,16 +116,20 @@ export const useGlobalState = create<GlobalState>((set, get) => {
       }
       set({ minerWallet: undefined, savedAccount: undefined });
     },
-    setTpm: (tpm: number) => {
-      set({ tpm });
-      setMinerSettings(tpm, get().fpt);
+    updateMinerConfig: async (config: MinerConfig) => {
+
+      const store = get().store;
+
+      if (!store) {
+        throw new Error("store is not set");
+      }
+      await store.set("minerConfig", config);
+      await store.save();
+
+      set({ minerConfig: config });
     },
-    setFpt: (fpt: number) => {
-      set({ fpt });
-      setMinerSettings(get().tpm, fpt);
-    },
-    setMinerInterval: (interval?: NodeJS.Timeout) => {
-      set({ minerInterval: interval });
+    setMinerUnlistenFn: async (unlistenFn?: UnlistenFn) => {
+      set({ minerUnlistenFn: unlistenFn });
     },
   };
 });

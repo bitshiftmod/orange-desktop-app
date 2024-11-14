@@ -8,6 +8,8 @@ import { MAINNET_APP_INDEX, MAINNET_ASSET_INDEX } from "../../constants";
 
 import dayjs from "dayjs";
 import abi from "../../abi/OrangeCoin.arc4.json";
+import { readAssetData } from "../../hooks/useAssetData";
+import { useGlobalState } from "../../store/store";
 
 // global miner state
 // stored here for convenience for setInterval callback
@@ -15,10 +17,6 @@ export let txIndex = 0;
 export let transactionsToSend = 0;
 export let miningMinute = 0;
 export let miningSecond = 0;
-export let lastMinerAddress = "";
-
-export let tpm = 60;
-export let fpt = 2000;
 
 export declare type SignedTransaction = {
   txID: string;
@@ -41,13 +39,13 @@ const signAndSendMinerTransactions = async (
 ) => {
   try {
     const signedTxs = await signTransactions(account, txns);
-    const { txid } = await client
+    const { txId } = await client
       .sendRawTransaction(signedTxs.map((b) => b.blob))
       .do();
-    await algosdk.waitForConfirmation(client, txid, 5);
+    await algosdk.waitForConfirmation(client, txId, 5);
   } catch(e) {
     console.error(e)
-    throw new Error("Failed to sign transactions.");
+    throw new Error("Failed to sign and send transactions.");
   }
 };
 export const optIn = async (
@@ -62,7 +60,7 @@ export const optIn = async (
     if (app) {
       txns.push(
         algosdk.makeApplicationOptInTxnFromObject({
-          sender: account.addr || "",
+          from: account.addr || "",
           appIndex: MAINNET_APP_INDEX,
           suggestedParams,
         })
@@ -71,8 +69,8 @@ export const optIn = async (
     if (asset) {
       txns.push(
         algosdk.makeAssetTransferTxnWithSuggestedParamsFromObject({
-          sender: account.addr,
-          receiver: account.addr,
+          from: account.addr,
+          to: account.addr,
           assetIndex: MAINNET_ASSET_INDEX,
           amount: 0,
           suggestedParams,
@@ -91,6 +89,11 @@ export const mine = async (
   client: Algodv2,
   account: Account,
 ) => {
+
+  const {fpt, tpm } = useGlobalState.getState().minerConfig;
+
+  const {lastMiner} = await readAssetData(client, MAINNET_APP_INDEX); 
+
   const minerSigner = async (
     group: algosdk.Transaction[]
   ): Promise<Uint8Array[]> => {
@@ -105,7 +108,7 @@ export const mine = async (
   const contract = new algosdk.ABIContract(abi);
   const method = contract.getMethodByName("mine");
   suggestedParams.flatFee = true;
-  suggestedParams.fee = BigInt(fpt);
+  suggestedParams.fee = fpt;
 
   let currentMinute = dayjs().unix();
   currentMinute = currentMinute - (currentMinute % 60);
@@ -123,7 +126,7 @@ export const mine = async (
   miningSecond += 1;
 
   while (amount > 0) {
-    const groupSize = amount > 16 ? 16 : amount;
+    const groupSize = Math.min(16, amount);
     amount -= groupSize;
     const atc = new algosdk.AtomicTransactionComposer();
     for (let i = 0; i < groupSize; i += 1) {
@@ -132,8 +135,8 @@ export const mine = async (
       atc.addMethodCall({
         appID: MAINNET_APP_INDEX,
         method,
-        methodArgs: [dAddress.publicKey],
-        appAccounts: [lastMinerAddress, dAddress],
+        methodArgs: [algosdk.decodeAddress(dAddress).publicKey],
+        appAccounts: [lastMiner, dAddress],
         appForeignAssets: [MAINNET_ASSET_INDEX],
         sender: mAddress,
         signer: minerSigner,
@@ -149,12 +152,3 @@ export const mine = async (
     //   .finally(() => setPendingTxs((txs) => txs - groupSize));
   }
 };
-
-export const setLastMinerAddress = (address: string) => {
-  lastMinerAddress = address;
-};
-
-export const setMinerSettings = (transactionsPerMinute: number, feePerTransaction: number) => {
-  tpm = transactionsPerMinute;
-  fpt = feePerTransaction;
-}

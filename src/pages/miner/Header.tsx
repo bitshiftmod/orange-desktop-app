@@ -8,7 +8,7 @@ const Header = () => {
 
   const [showWalletModal, setShowWalletModal] = useState(false);
   return (
-    <div className="flex items-center">
+    <div className="flex items-center pt-6 px-6">
       <div className="w-5" />
       <div className="flex justify-center w-full items-center font-bold text-lg gap-2">
         <img src="orange.svg" className="size-8" />
