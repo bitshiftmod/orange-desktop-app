@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.4.0] - 2024-11-13
+
+### Added
+
+* New "On Mine" settings for determining action to take after successfully mining and ORA. Includes option to HODL or Add to LP with Algo, VEST, or COOP. Add to LP option swaps Algo to VEST or COOP before adding with ORA to LP. 
+
+### Updated
+
+* Reworked mining process to use Rust thread as using setInterval could get throttled when app was in background. 
+
 ## [0.3.0] - 2024-10-31
 
 ### Added
