@@ -6,7 +6,7 @@ import RadioButton from "../../components/RadioButton";
 import Row from "../../components/Row";
 import { MAINNET_APP_INDEX } from "../../constants";
 import useAccountData from "../../hooks/useAccountData";
-import useAssetData from "../../hooks/useAssetData";
+import useAssetData, { readAssetData } from "../../hooks/useAssetData";
 import useBalances from "../../hooks/useBalances";
 import { addToLP, supportedLPTokens } from "../../lib/token";
 import { OnMineAction, useGlobalState } from "../../store/store";
@@ -63,17 +63,6 @@ const MiningSettingsPanel = () => {
         setOraMinedMessage(
           `You mined ${assetData.minerReward} ORA at Block ${assetData.block}`
         );
-
-        if (minerConfig.onMine == OnMineAction.ADD_TO_LP) {
-          if (algosdk && minerWallet && assetData?.minerReward) {
-            addToLP(
-              algosdk,
-              minerWallet,
-              assetData.minerReward,
-              minerConfig.lpAssetId
-            );
-          }
-        }
       } else {
         setOraMinedMessage(undefined);
       }
@@ -101,8 +90,28 @@ const MiningSettingsPanel = () => {
               className="bg-orange-500 text-white rounded px-4 py-1 w-full"
               onClick={async () => {
                 if (algosdk && minerWallet) {
-                  const unlisten = await listen("timer-tick", () => {
+                  let lastOraMinedRound = 0;
+                  const unlisten = await listen("timer-tick", async () => {
                     mine(algosdk, minerWallet);
+                    const assetData = await readAssetData(
+                      algosdk,
+                      MAINNET_APP_INDEX
+                    );
+                    if (assetData.block !== lastOraMinedRound) {
+                      lastOraMinedRound = assetData.block;
+                      if (assetData.lastMiner === minerWallet.addr.toString()) {
+                        const minerConfig =
+                          useGlobalState.getState().minerConfig;
+                        if (minerConfig.onMine == OnMineAction.ADD_TO_LP) {
+                          addToLP(
+                            algosdk,
+                            minerWallet,
+                            assetData.minerReward,
+                            minerConfig.lpAssetId
+                          );
+                        }
+                      }
+                    }
                   });
 
                   setMinerUnlistenFn(unlisten);

@@ -152,8 +152,6 @@ export const addToLP = async (
     asset2ID: pairAssetId,
   });
 
-  console.log(poolInfo);
-
   const pairAssetAmount = Math.floor(
     (Number(oraAmount) / Number(poolInfo.asset1Reserves)) *
       Number(poolInfo.asset2Reserves)
@@ -166,7 +164,6 @@ export const addToLP = async (
   if (pairAssetId !== ALGO_ASSET_ID) {
     const assetInfo = await getAssetInfo(algosdk, pairAssetId);
     decimals = assetInfo.decimals;
-    console.log(assetInfo, pairAssetAmount);
 
     fixedOutputSwapTxns = await createFixedOutputSwapTxns({
       algosdk,

@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.4.1] - 2024-11-15
+
+### Fixed
+
+* Reworked On Mine action trigger to fix issue where it was not triggering consistently when app was in background. 
+
 ## [0.4.0] - 2024-11-13
 
 ### Added

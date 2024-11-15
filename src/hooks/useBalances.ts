@@ -40,16 +40,7 @@ const useBalances = () => {
               assetInfo,
             });
           }
-          // setBalances({ algo, [assetInfo.name]: asset.amount / 10 ** assetInfo.decimals });
         }
-
-        // const oraAsset = accountData.assets.find(
-        //   (asset: any) => asset["asset-id"] == MAINNET_ASSET_INDEX
-        // );
-
-        // const ora = oraAsset
-        //   ? Number(oraAsset.amount) / 100_000_000
-        //   : undefined;
 
         setBalances({ algo, assets });
       };
