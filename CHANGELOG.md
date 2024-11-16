@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Updated 
+
+* Removed Note field from mining transactions to save space for indexers. 
+
 ### Fixed
 
 * Halving denominator calculation was off for showing progress into the new halving.  

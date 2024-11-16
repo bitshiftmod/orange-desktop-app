@@ -140,7 +140,6 @@ export const mine = async (
         appForeignAssets: [MAINNET_ASSET_INDEX],
         sender: mAddress,
         signer: minerSigner,
-        note: Uint8Array.from([txIndex]),
         suggestedParams,
       });
     }
