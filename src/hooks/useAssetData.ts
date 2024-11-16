@@ -61,7 +61,7 @@ export const readAssetData = async (
   // updateAverageCost(minereward / Math.pow(10, decimals));
 
   const totalSupply = 4_000_000;
-  const halvingDenominator = 2 ^ (stateObj.halving || 0);
+  const halvingDenominator = 2 ** (1 + (stateObj.halving || 0));
   const totalHalvingSupply = totalSupply / halvingDenominator;
   const halvingSupply = Number(stateObj["halving_supply"]) / 100_000_000;
   const halvingProgress =
