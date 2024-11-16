@@ -43,7 +43,7 @@ const BalancesPanel = () => {
         className="text-sm"
       />
       {balances?.assets
-        .filter((a) => a.assetInfo.id != MAINNET_ASSET_INDEX)
+        .filter((a) => a.assetInfo.id != MAINNET_ASSET_INDEX && a.amount > 0)
         .map((asset) => (
           <Row
             key={asset.assetInfo.id}
