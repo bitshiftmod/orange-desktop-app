@@ -20,11 +20,11 @@ const Home = () => {
             <>
               <div className="flex justify-center gap-1">
                 <span className="font-bold">Algo:</span>{" "}
-                {priceData.price.toFixed(4)}
+                {priceData.algoPriceData.price.toFixed(4)}
               </div>
               <div className="flex justify-center gap-1">
                 <span className="font-bold">USD:</span>{" "}
-                {priceData.USD.toFixed(4)}
+                {priceData.usdcPriceData.price.toFixed(4)}
               </div>
             </>
           ) : (
