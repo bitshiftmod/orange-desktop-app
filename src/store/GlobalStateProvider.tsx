@@ -1,4 +1,4 @@
-import { createStore } from "@tauri-apps/plugin-store";
+import { Store } from "@tauri-apps/plugin-store";
 import { ReactElement, useEffect } from "react";
 import { useGlobalState } from "./store";
 
@@ -6,12 +6,23 @@ const GlobalStateProvider = ({ children }: { children: ReactElement }) => {
   const setStore = useGlobalState((state) => state.setStore);
 
   useEffect(() => {
-    createStore(
-      "store.bin"
-      // Seems to be a bug in plugin-store, using boolean value for autoSave throws an error that it expects u64
-      // , { autoSave: true }
-    ).then((store) => setStore(store));
-  }, []);
+    // let cancelled = false;
+
+    (async () => {
+      const store = await Store.load("store.bin");
+
+      // if (cancelled) {
+      //   await store.close();
+      //   return;
+      // }
+
+      await setStore(store);
+    })();
+
+    // return () => {
+    //   cancelled = true;
+    // };
+  }, [setStore]);
 
   return <>{children}</>;
 };
