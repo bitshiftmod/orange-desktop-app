@@ -7,10 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.4.2] - 2025-09-28
+
 ### Updated 
 
-* Removed Note field from mining transactions to save space for indexers. 
 * Miner: Hide 0 balance assets in Balances Panel 
+* Updated vestige APIs for pricing
+* Updated tauri to 2.8.5
 
 ### Fixed
 
